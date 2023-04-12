@@ -43,7 +43,7 @@ args = TrainingArguments(
     save_strategy="epoch",
     # warmup_ratio=0.1, lr_scheduler_type='cosine',
     load_best_model_at_end=False,
-    fp16=True,
+    fp16=False,
     gradient_accumulation_steps=1,
     evaluation_strategy="epoch",
     per_device_train_batch_size=bs,

@@ -54,7 +54,7 @@ def compute_metrics(p: EvalPrediction):
     return result
 
 
-def get_ds(fold, tokenizer):
+def get_ds_last_submission(fold, tokenizer):
     if fold == "training":
         dfs = []
         for f in ["training", "validation"]:
@@ -99,10 +99,32 @@ def get_ds(fold, tokenizer):
     return Dataset.from_pandas(df)
 
 
-def get_dds(tokenizer):
+def get_ds_vanilla(fold, tokenizer):
+    """A lot of code duplication here"""
+    df = pd.read_csv(f"./arguments-{fold}.tsv", delimiter="\t")
+    labels = pd.read_csv(f"labels-{fold}.tsv", delimiter="\t")
+    labels["labels"] = labels.apply(
+        lambda l: [float(l[lab]) for lab in labs], axis=1
+    )
+    df = df.merge(labels[["Argument ID", "labels"]], on=["Argument ID"])
+    print(df.shape)
+    df["StanceUpdated"] = df["Stance"].apply(
+        lambda l: "against" if "against" in l else "favour"
+    )
+    df["sectok"] = "[" + df.StanceUpdated + "]"
+    sectoks = list(df.sectok.unique())
+    if fold == 'training':
+        tokenizer.add_special_tokens({"additional_special_tokens": sectoks})
+    sep = " [SEP] "
+    df["input"] = df.sectok + sep + df.Premise + sep + df.Conclusion
+    return Dataset.from_pandas(df)
+
+
+def get_dds(tokenizer, use_vanilla=True):
+    """If use_vanilla=True, use standard splits. Else, merge validation/train (last submission)"""
     def tok_func(x):
         return tokenizer(x["input"])
-
+    get_ds = get_ds_vanilla if use_vanilla else get_ds_last_submission
     tr = get_ds("training", tokenizer).map(tok_func, batched=True, remove_columns=COLS_TO_REMOVE)
     val = get_ds("validation", tokenizer).map(
         tok_func, batched=True, remove_columns=COLS_TO_REMOVE
