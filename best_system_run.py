@@ -25,7 +25,7 @@ f.to_csv("labels-test.tsv", index=None, sep="\t")
 # model_name='roberta-base'
 # model_name = "microsoft/deberta-v2-xxlarge"
 parser = argparse.ArgumentParser(description='Simple args')
-parser.add_argument('-m', '--model-name', required=True, default="microsoft/deberta-v3-small")
+parser.add_argument('-m', '--model-name', default="microsoft/deberta-v3-small")
 args = parser.parse_args()
 model_name = args.model_name
 model = AutoModelForSequenceClassification.from_pretrained(model_name)

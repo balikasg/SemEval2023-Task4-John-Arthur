@@ -3,6 +3,7 @@ import torch
 import pandas as pd
 from transformers import EvalPrediction
 from datasets import Dataset, DatasetDict
+from sklearn.metrics import f1_score, roc_auc_score, accuracy_score, precision_score
 
 COLS_TO_REMOVE = ("Argument ID", "Conclusion", "Stance", "Premise", "StanceUpdated")
 
