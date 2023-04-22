@@ -1,5 +1,5 @@
 import pandas as pd
-import gc
+import gc, argparser
 import transformers
 from transformers import (
     TrainingArguments,
@@ -22,9 +22,12 @@ for col in labs:
     f[col] = 0
 f.to_csv("labels-test.tsv", index=None, sep="\t")
 
-model_name = "microsoft/deberta-v3-small"
 # model_name='roberta-base'
 # model_name = "microsoft/deberta-v2-xxlarge"
+parser = argparse.ArgumentParser(description='Simple args')
+parser.add_argument('-m', '--model-name', required=True, default="microsoft/deberta-v3-small")
+args = parser.parse_args()
+model_name = args.model_name
 model = AutoModelForSequenceClassification.from_pretrained(model_name)
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
